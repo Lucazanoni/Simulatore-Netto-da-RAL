@@ -182,10 +182,16 @@
     color:var(--navy); font-weight:700; margin-bottom:10px;
   }
   .flow-legend{
-    display:flex; flex-wrap:wrap; gap:14px; margin:10px 0 4px; font-size:11px; color:var(--ink-soft);
+    display:grid; grid-template-columns:1fr 1fr; gap:6px 24px; margin:14px 0 4px;
   }
-  .flow-legend span{display:inline-flex; align-items:center; gap:6px;}
-  .flow-legend i{width:10px; height:10px; border-radius:2px; display:inline-block;}
+  @media(max-width:520px){ .flow-legend{grid-template-columns:1fr;} }
+  .fl-item{
+    display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ink-soft);
+    padding:5px 0; border-bottom:1px dotted var(--border-soft);
+  }
+  .fl-item i{width:10px; height:10px; border-radius:2px; display:inline-block; flex:none;}
+  .fl-label{flex:1;}
+  .fl-value{font-family:var(--mono); font-weight:600; color:var(--ink); white-space:nowrap;}
 
   .lines{padding:6px 24px 4px;}
   .line{
@@ -383,44 +389,39 @@
 
         <div class="flow-wrap">
           <div class="flow-title">Come si divide la RAL</div>
-          <svg id="flow-svg" width="100%" viewBox="0 0 640 300" role="img" preserveAspectRatio="xMidYMid meet">
+          <svg id="flow-svg" width="100%" viewBox="0 0 640 260" role="img" preserveAspectRatio="xMidYMid meet">
             <title>Suddivisione della RAL in contributi INPS, IRPEF netta, addizionali locali e netto</title>
-            <desc>Diagramma a flusso proporzionale che mostra come la retribuzione annua lorda si divide, prima in contributi INPS e imponibile fiscale, poi l'imponibile fiscale in IRPEF netta, addizionali locali e netto.</desc>
-            <!-- riga 1: RAL -->
-            <rect id="fRal" x="40" y="20" width="560" height="36" rx="5" fill="var(--navy-deep)"/>
-            <text id="fRalLabel" x="320" y="38" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="var(--mono)" font-size="12" font-weight="700">RAL</text>
-            <!-- connettori riga1 -> riga2 -->
-            <rect id="flowA" x="40" y="56" width="120" height="56" fill="var(--stamp-red)" opacity="0.15"/>
-            <rect id="flowB" x="170" y="56" width="430" height="56" fill="var(--navy)" opacity="0.15"/>
-            <!-- riga 2: contributi inps | imponibile -->
-            <rect id="fInps" x="40" y="112" width="120" height="36" rx="5" fill="var(--stamp-red)"/>
-            <text id="fInpsLabel" x="100" y="130" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="var(--mono)" font-size="10.5" font-weight="700">INPS</text>
-            <rect id="fImponibile" x="170" y="112" width="430" height="36" rx="5" fill="var(--navy)"/>
-            <text id="fImponibileLabel" x="385" y="130" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="var(--mono)" font-size="10.5" font-weight="700">Imponibile fiscale</text>
-            <!-- connettori riga2 -> riga3, solo sotto imponibile -->
-            <rect id="flowC" x="170" y="148" width="120" height="56" fill="var(--stamp-red)" opacity="0.13"/>
-            <rect id="flowD" x="298" y="148" width="80" height="56" fill="var(--gold)" opacity="0.13"/>
-            <rect id="flowE" x="386" y="148" width="214" height="56" fill="var(--stamp-green)" opacity="0.13"/>
-            <!-- riga 3: irpef netta | addizionali | netto -->
-            <rect id="fIrpef" x="170" y="204" width="120" height="36" rx="5" fill="var(--stamp-red)"/>
-            <text id="fIrpefLabel" x="230" y="222" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="var(--mono)" font-size="10" font-weight="700">IRPEF</text>
-            <rect id="fAdd" x="298" y="204" width="80" height="36" rx="5" fill="var(--gold)"/>
-            <text id="fAddLabel" x="338" y="222" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="var(--mono)" font-size="9.5" font-weight="700">Addiz.</text>
-            <rect id="fNetto" x="386" y="204" width="214" height="36" rx="5" fill="var(--stamp-green)"/>
-            <text id="fNettoLabel" x="493" y="222" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="var(--mono)" font-size="11.5" font-weight="700">Netto</text>
-            <!-- didascalie sotto ogni riga -->
-            <text id="capRal" x="320" y="72" text-anchor="middle" fill="var(--ink-soft)" font-family="var(--mono)" font-size="11">€ 0</text>
-            <text id="capInps" x="100" y="164" text-anchor="middle" fill="var(--ink-soft)" font-family="var(--mono)" font-size="10">€ 0</text>
-            <text id="capImponibile" x="385" y="164" text-anchor="middle" fill="var(--ink-soft)" font-family="var(--mono)" font-size="10">€ 0</text>
-            <text id="capIrpef" x="230" y="256" text-anchor="middle" fill="var(--ink-soft)" font-family="var(--mono)" font-size="9.5">€ 0</text>
-            <text id="capAdd" x="338" y="256" text-anchor="middle" fill="var(--ink-soft)" font-family="var(--mono)" font-size="9.5">€ 0</text>
-            <text id="capNetto" x="493" y="256" text-anchor="middle" fill="var(--ink-soft)" font-family="var(--mono)" font-size="10.5">€ 0</text>
+            <desc>Diagramma di flusso orizzontale proporzionale che mostra come la retribuzione annua lorda si divide, da sinistra a destra, prima in contributi INPS e imponibile fiscale, poi l'imponibile fiscale in IRPEF netta, addizionali locali e netto. I valori numerici sono riportati nella legenda sotto il diagramma.</desc>
+            <!-- colonna 1: RAL -->
+            <rect id="fRal" x="40" y="30" width="70" height="200" rx="5" fill="var(--navy-deep)"/>
+            <text id="fRalLabel" x="75" y="130" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="var(--mono)" font-size="10.5" font-weight="700">RAL</text>
+            <!-- connettori colonna1 -> colonna2 -->
+            <rect id="flowA" x="110" y="30" width="170" height="50" fill="var(--stamp-red)" opacity="0.15"/>
+            <rect id="flowB" x="110" y="80" width="170" height="150" fill="var(--navy)" opacity="0.15"/>
+            <!-- colonna 2: contributi inps (sopra) | imponibile fiscale (sotto) -->
+            <rect id="fInps" x="280" y="30" width="70" height="50" rx="5" fill="var(--stamp-red)"/>
+            <text id="fInpsLabel" x="315" y="55" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="var(--mono)" font-size="9.5" font-weight="700">INPS</text>
+            <rect id="fImponibile" x="280" y="80" width="70" height="150" rx="5" fill="var(--navy)"/>
+            <text id="fImponibileLabel" x="315" y="155" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="var(--mono)" font-size="9" font-weight="700">Imponibile</text>
+            <!-- connettori colonna2 -> colonna3, solo dalla fascia imponibile -->
+            <rect id="flowC" x="350" y="80" width="170" height="50" fill="var(--stamp-red)" opacity="0.13"/>
+            <rect id="flowD" x="350" y="130" width="170" height="35" fill="var(--gold)" opacity="0.13"/>
+            <rect id="flowE" x="350" y="165" width="170" height="65" fill="var(--stamp-green)" opacity="0.13"/>
+            <!-- colonna 3: irpef netta | addizionali | netto -->
+            <rect id="fIrpef" x="520" y="80" width="70" height="50" rx="5" fill="var(--stamp-red)"/>
+            <text id="fIrpefLabel" x="555" y="105" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="var(--mono)" font-size="9.5" font-weight="700">IRPEF</text>
+            <rect id="fAdd" x="520" y="130" width="70" height="35" rx="5" fill="var(--gold)"/>
+            <text id="fAddLabel" x="555" y="147" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="var(--mono)" font-size="9" font-weight="700">Addiz.</text>
+            <rect id="fNetto" x="520" y="165" width="70" height="65" rx="5" fill="var(--stamp-green)"/>
+            <text id="fNettoLabel" x="555" y="197" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="var(--mono)" font-size="10.5" font-weight="700">Netto</text>
           </svg>
           <div class="flow-legend">
-            <span><i style="background:var(--navy-deep)"></i>RAL / imponibile</span>
-            <span><i style="background:var(--stamp-red)"></i>Trattenute (INPS, IRPEF, addizionali)</span>
-            <span><i style="background:var(--gold)"></i>Addizionali locali</span>
-            <span><i style="background:var(--stamp-green)"></i>Netto</span>
+            <div class="fl-item"><i style="background:var(--navy-deep)"></i><span class="fl-label">RAL lorda</span><span class="fl-value" id="legRal">€ 0</span></div>
+            <div class="fl-item"><i style="background:var(--stamp-red)"></i><span class="fl-label">Contributi INPS</span><span class="fl-value" id="legInps">€ 0</span></div>
+            <div class="fl-item"><i style="background:var(--navy)"></i><span class="fl-label">Imponibile fiscale</span><span class="fl-value" id="legImponibile">€ 0</span></div>
+            <div class="fl-item"><i style="background:var(--stamp-red)"></i><span class="fl-label">IRPEF netta</span><span class="fl-value" id="legIrpef">€ 0</span></div>
+            <div class="fl-item"><i style="background:var(--gold)"></i><span class="fl-label">Addizionali locali</span><span class="fl-value" id="legAdd">€ 0</span></div>
+            <div class="fl-item"><i style="background:var(--stamp-green)"></i><span class="fl-label">Netto annuale</span><span class="fl-value" id="legNetto">€ 0</span></div>
           </div>
         </div>
 
@@ -633,69 +634,68 @@ function calcolaEVaiARisultato(){
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
-// Aggiorna larghezze, posizioni e didascalie del diagramma proporzionale RAL -> sottocomponenti.
-// Riga 1 (RAL, 100%) si divide in riga 2 (contributi INPS | imponibile fiscale);
-// il segmento "imponibile fiscale" della riga 2 si divide a sua volta nella riga 3
-// (IRPEF netta | addizionali locali | netto), allineata sotto di esso.
+// Aggiorna altezze, posizioni delle colonne (sinistra -> destra) e la legenda esterna
+// con i valori numerici, cosi' il testo non dipende mai dalla dimensione di un segmento
+// (evita sovrapposizioni quando un importo e' molto piccolo rispetto agli altri).
+// Colonna 1 (RAL, 100%) si divide nella colonna 2 (contributi INPS | imponibile fiscale);
+// la fascia "imponibile fiscale" della colonna 2 si divide a sua volta nella colonna 3
+// (IRPEF netta | addizionali locali | netto), allineata in verticale sotto di essa.
 function aggiornaDiagrammaFlusso(ral, contributiInps, imponibileBase, irpefNetta, addTotale, nettoAnnuale){
-  const X0 = 40, FULL_W = 560;
+  const Y0 = 30, FULL_H = 200;
   if(ral <= 0){ ral = 1; }
-  const wInps = FULL_W * (contributiInps / ral);
-  const wImponibile = FULL_W - wInps;
-  const xImponibile = X0 + wInps;
+  const hInps = FULL_H * (contributiInps / ral);
+  const hImponibile = FULL_H - hInps;
+  const yImponibile = Y0 + hInps;
 
-  const setRect = (id, x, w) => {
+  const setRect = (id, y, h) => {
     const el = document.getElementById(id);
-    el.setAttribute('x', x.toFixed(1));
-    el.setAttribute('width', Math.max(w, 0).toFixed(1));
+    el.setAttribute('y', y.toFixed(1));
+    el.setAttribute('height', Math.max(h, 0).toFixed(1));
   };
-  const setText = (id, x) => document.getElementById(id).setAttribute('x', x.toFixed(1));
+  const setTextY = (id, y) => document.getElementById(id).setAttribute('y', y.toFixed(1));
 
-  setRect('fInps', X0, wInps);
-  setText('fInpsLabel', X0 + wInps/2);
-  setRect('fImponibile', xImponibile, wImponibile);
-  setText('fImponibileLabel', xImponibile + wImponibile/2);
-  setRect('flowA', X0, wInps);
-  setRect('flowB', xImponibile, wImponibile);
-  setText('capInps', X0 + wInps/2);
-  setText('capImponibile', xImponibile + wImponibile/2);
-  document.getElementById('capInps').textContent = euro(contributiInps);
-  document.getElementById('capImponibile').textContent = euro(imponibileBase);
-  document.getElementById('capRal').textContent = euro(ral);
+  setRect('fInps', Y0, hInps);
+  setTextY('fInpsLabel', Y0 + hInps/2);
+  setRect('fImponibile', yImponibile, hImponibile);
+  setTextY('fImponibileLabel', yImponibile + hImponibile/2);
+  setRect('flowA', Y0, hInps);
+  setRect('flowB', yImponibile, hImponibile);
 
   const base = imponibileBase > 0 ? imponibileBase : 1;
-  const wIrpef = wImponibile * (irpefNetta / base);
-  const wAdd = wImponibile * (addTotale / base);
-  const wNetto = Math.max(wImponibile - wIrpef - wAdd, 0);
-  const xIrpef = xImponibile;
-  const xAdd = xIrpef + wIrpef;
-  const xNetto = xAdd + wAdd;
+  const hIrpef = hImponibile * (irpefNetta / base);
+  const hAdd = hImponibile * (addTotale / base);
+  const hNetto = Math.max(hImponibile - hIrpef - hAdd, 0);
+  const yIrpef = yImponibile;
+  const yAdd = yIrpef + hIrpef;
+  const yNetto = yAdd + hAdd;
 
-  setRect('fIrpef', xIrpef, wIrpef);
-  setText('fIrpefLabel', xIrpef + wIrpef/2);
-  setRect('fAdd', xAdd, wAdd);
-  setText('fAddLabel', xAdd + wAdd/2);
-  setRect('fNetto', xNetto, wNetto);
-  setText('fNettoLabel', xNetto + wNetto/2);
-  setRect('flowC', xIrpef, wIrpef);
-  setRect('flowD', xAdd, wAdd);
-  setRect('flowE', xNetto, wNetto);
-  setText('capIrpef', xIrpef + wIrpef/2);
-  setText('capAdd', xAdd + wAdd/2);
-  setText('capNetto', xNetto + wNetto/2);
-  document.getElementById('capIrpef').textContent = euro(irpefNetta);
-  document.getElementById('capAdd').textContent = euro(addTotale);
-  document.getElementById('capNetto').textContent = euro(nettoAnnuale);
+  setRect('fIrpef', yIrpef, hIrpef);
+  setTextY('fIrpefLabel', yIrpef + hIrpef/2);
+  setRect('fAdd', yAdd, hAdd);
+  setTextY('fAddLabel', yAdd + hAdd/2);
+  setRect('fNetto', yNetto, hNetto);
+  setTextY('fNettoLabel', yNetto + hNetto/2);
+  setRect('flowC', yIrpef, hIrpef);
+  setRect('flowD', yAdd, hAdd);
+  setRect('flowE', yNetto, hNetto);
 
-  // Nasconde le etichette interne quando il segmento è troppo stretto per contenerle
-  const hideIfNarrow = (rectId, labelId, minW) => {
-    const w = parseFloat(document.getElementById(rectId).getAttribute('width'));
-    document.getElementById(labelId).style.display = w < minW ? 'none' : '';
+  // Nasconde le etichette interne quando il segmento è troppo basso per contenerle
+  const hideIfShort = (rectId, labelId, minH) => {
+    const h = parseFloat(document.getElementById(rectId).getAttribute('height'));
+    document.getElementById(labelId).style.display = h < minH ? 'none' : '';
   };
-  hideIfNarrow('fInps', 'fInpsLabel', 46);
-  hideIfNarrow('fIrpef', 'fIrpefLabel', 46);
-  hideIfNarrow('fAdd', 'fAddLabel', 46);
-  hideIfNarrow('fNetto', 'fNettoLabel', 46);
+  hideIfShort('fInps', 'fInpsLabel', 16);
+  hideIfShort('fIrpef', 'fIrpefLabel', 16);
+  hideIfShort('fAdd', 'fAddLabel', 16);
+  hideIfShort('fNetto', 'fNettoLabel', 16);
+
+  // Valori numerici: sempre nella legenda esterna, mai sovrapposti ai segmenti
+  document.getElementById('legRal').textContent = euro(ral);
+  document.getElementById('legInps').textContent = euro(contributiInps);
+  document.getElementById('legImponibile').textContent = euro(imponibileBase);
+  document.getElementById('legIrpef').textContent = euro(irpefNetta);
+  document.getElementById('legAdd').textContent = euro(addTotale);
+  document.getElementById('legNetto').textContent = euro(nettoAnnuale);
 }
 
 function calcola(){
