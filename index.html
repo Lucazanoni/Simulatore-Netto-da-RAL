@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Simulatore stipendio netto da RAL</title>
+<title>Dal lordo al netto — simulatore RAL</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -262,7 +262,7 @@
   <header class="top">
     <div>
       <p class="brand-eyebrow">Simulazione busta paga</p>
-      <h1>Simulatore busta paga</h1>
+      <h1>Dal lordo al netto</h1>
       <p class="subtitle">Inserisci una RAL e vedi come si arriva allo stipendio netto, voce per voce — con le agevolazioni più comuni. Caso semplificato: dipendente a Milano, contratto a tempo indeterminato.</p>
     </div>
     <nav class="tabs">
@@ -309,6 +309,13 @@
           </div>
 
           <div class="check-row">
+            <input type="checkbox" id="coniuge">
+            <label for="coniuge">Coniuge a carico
+              <span class="desc">Detrazione art. 12 TUIR: da un massimo teorico di 800 € (reddito complessivo fino a 15.000 €) a 690 € fisso fino a 40.000 €, poi decrescente fino ad azzerarsi a 80.000 €. Spetta se il coniuge non è legalmente separato e ha un reddito proprio non superiore a 2.840,51 €/anno.</span>
+            </label>
+          </div>
+
+          <div class="check-row">
             <input type="checkbox" id="familiari">
             <label for="familiari">Genitori o nonni conviventi a carico
               <span class="desc">Stima della detrazione per altri familiari a carico (art. 12 TUIR), riservata dal 2025 agli ascendenti conviventi. Se sono più di uno o la detrazione è condivisa con un altro familiare avente diritto, l'importo reale va diviso pro quota.</span>
@@ -335,9 +342,9 @@
           </div>
 
           <div class="check-row">
-            <input type="checkbox" id="aziendaPiccola">
+            <input type="checkbox" id="aziendaPiccola" checked>
             <label for="aziendaPiccola">Azienda con meno di 15 dipendenti
-              <span class="desc">Solo settore privato. La soglia dei 15 dipendenti pesa soprattutto sul datore di lavoro (obbligo assunzione disabili, CIGS, tutele in caso di licenziamento): non modifica la tua trattenuta INPS, che resta 9,19% a prescindere dalla dimensione dell'azienda.</span>
+              <span class="desc">Sotto i 15 dipendenti non si applica il contributo CIGS (Cassa Integrazione Guadagni Straordinaria): la tua quota INPS resta al 9,19%. Sopra i 15, la quota lavoratore del contributo CIGS (0,30%) porta l'aliquota al 9,49%. Semplificazione: la soglia varia leggermente per settore (es. 50 dipendenti per commercio e turismo).</span>
             </label>
           </div>
 
@@ -462,6 +469,10 @@
             <span class="l-label">Detrazione lavoro dipendente</span>
             <span class="l-value" id="out-detrLavoro">+ € 0</span>
           </div>
+          <div class="line add" id="row-detrConiuge" style="display:none;">
+            <span class="l-label">Detrazione coniuge a carico</span>
+            <span class="l-value" id="out-detrConiuge">+ € 0</span>
+          </div>
           <div class="line add" id="row-detrFamiliari" style="display:none;">
             <span class="l-label">Detrazione altri familiari a carico</span>
             <span class="l-value" id="out-detrFamiliari">+ € 0</span>
@@ -493,7 +504,7 @@
       </div>
 
       <div class="disclaimer">
-        <b>Cosa considera, e cosa no, questo calcolatore.</b> È una simulazione semplificata pensata per un caso standard: dipendente privato o pubblico, tempo indeterminato, residenza fiscale a Milano, con le regole IRPEF e INPS indicativamente in vigore nel 2026. Non copre tutti i casi reali: non considera, tra l'altro, il massimale contributivo, il contributo aggiuntivo IVS dell'1% oltre 52.190 €/anno, oneri deducibili/detraibili personali (spese sanitarie, mutuo, ecc.), il conguaglio di fine anno, il TFR. Il netto del mese "ordinario" e quello della mensilità aggiuntiva sono stimati assumendo che l'IRPEF sia distribuita in parti uguali sui mesi e che le addizionali regionale/comunale — come avviene di norma in busta paga — siano trattenute solo sui mesi ordinari, non sulla tredicesima/quattordicesima. Per un calcolo vincolante usa la busta paga del datore di lavoro o un CAF/commercialista, e verifica le aliquote aggiornate sulla pagina "Fonti ufficiali".
+        <b>Cosa considera, e cosa no, questo calcolatore.</b> È una simulazione semplificata pensata per un caso standard: dipendente privato o pubblico, tempo indeterminato, residenza fiscale a Milano, con le regole IRPEF e INPS indicativamente in vigore nel 2026. Non copre tutti i casi reali: non considera, tra l'altro, il massimale contributivo, il contributo aggiuntivo IVS dell'1% oltre 52.190 €/anno, oneri deducibili/detraibili personali (spese sanitarie, mutuo, ecc.), il conguaglio di fine anno, il TFR, e il welfare aziendale (buoni pasto, fringe benefit, piani welfare) che in molti casi riduce ulteriormente l'imponibile fiscale e contributivo. Il netto del mese "ordinario" e quello della mensilità aggiuntiva sono stimati assumendo che l'IRPEF sia distribuita in parti uguali sui mesi e che le addizionali regionale/comunale — come avviene di norma in busta paga — siano trattenute solo sui mesi ordinari, non sulla tredicesima/quattordicesima. Per un calcolo vincolante usa la busta paga del datore di lavoro o un CAF/commercialista, e verifica le aliquote aggiornate sulla pagina "Fonti ufficiali".
       </div>
     </div>
 
@@ -509,52 +520,52 @@
     <div class="source-grid">
 
       <div class="source-card">
+        <span class="src-org">MEF · Portale NoiPA</span>
+        <h3>Detrazioni per familiari a carico</h3>
+        <p>Formule di calcolo per la detrazione del coniuge a carico (800€/690€) e degli altri familiari a carico (750€) usate nel calcolatore, con le relative soglie di reddito.</p>
+        <a href="https://noipa.mef.gov.it/documents/27938/34120621/Approfondimento+Detrazioni+Familiari+a+Carico/b4d44a51-3e23-487b-a843-cd194ad3fc75" target="_blank" rel="noopener">noipa.mef.gov.it — detrazioni familiari a carico →</a>
+      </div>
+
+      <div class="source-card">
         <span class="src-org">INPS</span>
-        <h3>Estratto conto contributivo — per il lavoratore</h3>
-        <p>Pagina rivolta direttamente al lavoratore (privato e pubblico): spiega cosa sono i contributi accreditati e come consultarli.</p>
-        <a href="https://www.inps.it/it/it/dettaglio-scheda.it.schede-servizio-strumento.schede-servizi.consultazione-estratto-conto-contributivo-previdenziale-50119.consultazione-estratto-conto-contributivo-previdenziale.html" target="_blank" rel="noopener">inps.it — estratto conto contributivo →</a>
+        <h3>Aliquote contributive IVS</h3>
+        <p>Suddivisione dell'aliquota IVS complessiva (33%) tra datore di lavoro e lavoratore, con il 9,19% indicato come misura piena a carico del lavoratore.</p>
+        <a href="https://servizi2.inps.it/servizi/Bussola/VisualizzaDoc.aspx?sVirtualURL=%2Fcircolari%2FCircolare+numero+25+del+18-02-2010.htm" target="_blank" rel="noopener">servizi2.inps.it — circolare aliquote contributive →</a>
       </div>
 
       <div class="source-card">
         <span class="src-org">INPS</span>
         <h3>Contributi obbligatori — dipendenti pubblici</h3>
-        <p>Pagina dedicata agli iscritti alla Gestione Dipendenti Pubblici: base per l'aliquota IVS più bassa applicata al comparto pubblico.</p>
+        <p>Contributi degli iscritti alla Gestione Dipendenti Pubblici, da cui deriva l'aliquota più bassa applicata al comparto pubblico nel calcolatore.</p>
         <a href="https://www.inps.it/it/it/dettaglio-approfondimento.schede-informative.49814.contributi-obbligatori-degli-iscritti-alla-gestione-dipendenti-pubblici.html" target="_blank" rel="noopener">inps.it — dipendenti pubblici →</a>
       </div>
 
       <div class="source-card">
         <span class="src-org">INPS</span>
         <h3>Lavoratrici madri — istruzioni esonero contributivo</h3>
-        <p>Comunicazione rivolta alle lavoratrici madri: requisiti e importi dell'esonero contributivo IVS (madri di 3+ figli, tetto 3.000 €/anno).</p>
+        <p>Requisiti e importi dell'esonero contributivo IVS per le lavoratrici madri (madri di 3+ figli, tetto 3.000 €/anno) usato nel calcolatore.</p>
         <a href="https://www.inps.it/it/it/inps-comunica/notizie/dettaglio-news-page.news.2025.02.lavoratrici-madri-istruzioni-per-l-esonero-contributivo-2025.html" target="_blank" rel="noopener">inps.it — esonero lavoratrici madri →</a>
       </div>
 
       <div class="source-card">
         <span class="src-org">INPS</span>
-        <h3>Circolare n. 25/2010 — aliquota IVS "piena"</h3>
-        <p>Conferma che il 9,19% (8,89% + 0,30% aggiuntivo dal 2007) è l'aliquota a carico del lavoratore privato ormai a regime, non legata alla dimensione dell'azienda.</p>
-        <a href="https://servizi2.inps.it/servizi/Bussola/VisualizzaDoc.aspx?sVirtualURL=/circolari/Circolare+numero+25+del+18-02-2010.htm" target="_blank" rel="noopener">servizi2.inps.it — circolare 25/2010 →</a>
+        <h3>Assegno Unico e Universale — figli a carico</h3>
+        <p>Requisiti e importi dell'AUU, legati all'ISEE ed erogati direttamente da INPS per i figli minori di 21 anni (e disabili senza limiti di età). Non è una detrazione IRPEF, quindi non è inclusa nel cedolino.</p>
+        <a href="https://www.inps.it/it/it/dettaglio-scheda.it.schede-servizio-strumento.schede-servizi.assegno-unico-e-universale-per-i-figli-a-carico-55984.assegno-unico-e-universale-per-i-figli-a-carico.html" target="_blank" rel="noopener">inps.it — Assegno Unico e Universale →</a>
       </div>
 
       <div class="source-card">
         <span class="src-org">Comune di Milano</span>
-        <h3>Addizionale comunale IRPEF — pagina ufficiale</h3>
-        <p>Fonte diretta di aliquota (0,8%) e soglia di esenzione (23.000 €) usate nel calcolatore.</p>
+        <h3>Addizionale comunale IRPEF</h3>
+        <p>Aliquota (0,8%) e soglia di esenzione (23.000 €) usate nel calcolatore per l'addizionale comunale di Milano.</p>
         <a href="https://www.comune.milano.it/argomenti/tributi/addizionale-comunale-irpef" target="_blank" rel="noopener">comune.milano.it — addizionale comunale →</a>
       </div>
 
       <div class="source-card">
         <span class="src-org">MEF · Dipartimento delle Finanze</span>
         <h3>Addizionale regionale IRPEF</h3>
-        <p>Normativa e aliquote dell'addizionale regionale, applicata sullo stesso imponibile IRPEF nazionale.</p>
+        <p>Funzionamento dell'addizionale regionale a livello nazionale, applicata sullo stesso imponibile IRPEF calcolato per lo Stato.</p>
         <a href="https://www.finanze.gov.it/it/fiscalita/fiscalita-regionale-e-locale/Addizionale-regionale-allIRPEF/" target="_blank" rel="noopener">finanze.gov.it — addizionale regionale →</a>
-      </div>
-
-      <div class="source-card">
-        <span class="src-org">MEF · Dipartimento delle Finanze</span>
-        <h3>Simulatore addizionale comunale</h3>
-        <p>Simulatore ufficiale per verificare l'aliquota e l'eventuale soglia di esenzione del proprio Comune.</p>
-        <a href="https://www.finanze.gov.it/it/fiscalita/fiscalita-regionale-e-locale/Addizionale-comunale-allIRPEF/simulatore-addizionale-comunale-irpef-e-dati-statistici/" target="_blank" rel="noopener">finanze.gov.it — simulatore comunale →</a>
       </div>
 
       <div class="source-card">
@@ -567,8 +578,15 @@
       <div class="source-card">
         <span class="src-org">Regione Lombardia</span>
         <h3>Addizionale regionale IRPEF — scaglioni Lombardia</h3>
-        <p>Fonte diretta degli scaglioni usati in questo calcolatore: 1,23% fino a 15.000 €, 1,58% fino a 28.000 €, 1,72% fino a 50.000 €, 1,73% oltre.</p>
+        <p>Scaglioni usati in questo calcolatore: 1,23% fino a 15.000 €, 1,58% fino a 28.000 €, 1,72% fino a 50.000 €, 1,73% oltre.</p>
         <a href="https://www.regione.lombardia.it/bollo-auto-e-tributi-regionali/red-addizionale-regionale-irpef" target="_blank" rel="noopener">regione.lombardia.it — addizionale IRPEF →</a>
+      </div>
+
+      <div class="source-card">
+        <span class="src-org">Ministero del Lavoro (Cliclavoro)</span>
+        <h3>Cassa Integrazione Guadagni Straordinaria</h3>
+        <p>Contributo di finanziamento della CIGS (0,90% della retribuzione: 0,60% a carico dell'azienda, 0,30% a carico del lavoratore), dovuto dai datori di lavoro sopra i 15 dipendenti nella maggior parte dei settori — la base della differenza tra 9,19% e 9,49% nel calcolatore.</p>
+        <a href="https://www.cliclavoro.gov.it/tutele-e-sostegno-al-reddito/trattamenti-di-sostegno-al-reddito/cassa-integrazione-guadagni-straordinari" target="_blank" rel="noopener">cliclavoro.gov.it — CIGS →</a>
       </div>
 
     </div>
@@ -619,6 +637,18 @@ function detrazioneLavoroDipendente(rc){
   if(rc <= 15000) return 1955;
   if(rc <= 28000) return 1910 + 1190 * ((28000 - rc) / 13000);
   if(rc <= 50000) return 1910 * ((50000 - rc) / 22000);
+  return 0;
+}
+
+// Detrazione coniuge a carico — art. 12, comma 1, lett. a) TUIR. Spetta se il coniuge non è
+// legalmente ed effettivamente separato e ha un reddito proprio non superiore a 2.840,51 €/anno.
+// Semplificazione: non applica le piccole maggiorazioni fisse (10-30 €) previste per redditi
+// del dichiarante tra 29.000 e 35.200 €, né il rapporto ai mesi effettivi di matrimonio nell'anno.
+function detrazioneConiuge(rc){
+  if(rc <= 0) return 800;
+  if(rc <= 15000) return 800 - 110 * (rc / 15000);
+  if(rc <= 40000) return 690;
+  if(rc <= 80000) return 690 * ((80000 - rc) / 40000);
   return 0;
 }
 
@@ -702,20 +732,25 @@ function calcola(){
   const ral = Math.max(0, parseFloat(document.getElementById('ral').value) || 0);
   const mensilita = parseInt(document.getElementById('mensilita').value, 10);
   const figli = document.getElementById('figli').checked;
+  const coniuge = document.getElementById('coniuge').checked;
   const familiari = document.getElementById('familiari').checked;
   const madre = document.getElementById('madre').checked;
   const pubblico = document.getElementById('pubblico').checked;
   const aziendaPiccola = document.getElementById('aziendaPiccola').checked;
   const impatriati = document.getElementById('impatriati').checked;
 
-  // 1) Aliquota INPS — 9,19% è l'aliquota piena e fissa per i dipendenti privati
-  // (L. 296/2006: lo 0,30% aggiuntivo storico è già incluso dal 2007 in poi, a prescindere
-  // dalla dimensione dell'azienda — INPS circolare n. 25/2010). Per il pubblico impiego 8,80%.
+  // 1) Aliquota INPS.
+  // Privato: 9,19% base; sale a 9,49% se l'azienda rientra nel campo di applicazione della CIGS
+  // (in generale: più di 15 dipendenti), per via del contributo di finanziamento CIGS dello 0,90%
+  // (0,60% datore + 0,30% lavoratore) — Ministero del Lavoro, art. 23 L. 234/2021.
+  // Pubblico: 8,80%.
   let aliquotaInps, aliquotaLabel;
   if(pubblico){
     aliquotaInps = 0.0880; aliquotaLabel = '8,80% (settore pubblico)';
+  } else if(aziendaPiccola){
+    aliquotaInps = 0.0919; aliquotaLabel = '9,19% (azienda ≤ 15 dipendenti)';
   } else {
-    aliquotaInps = 0.0919; aliquotaLabel = '9,19% (settore privato)';
+    aliquotaInps = 0.0949; aliquotaLabel = '9,49% (azienda > 15 dipendenti, contributo CIGS)';
   }
   const contributiInpsLordi = ral * aliquotaInps;
 
@@ -733,8 +768,9 @@ function calcola(){
 
   // 5) Detrazioni
   const detrLavoro = detrazioneLavoroDipendente(imponibileFiscale);
+  const detrConiuge = coniuge ? Math.max(0, detrazioneConiuge(imponibileFiscale)) : 0;
   const detrFamiliari = familiari ? Math.max(0, 750 * ((80000 - imponibileFiscale) / 80000)) : 0;
-  const totaleDetrazioni = detrLavoro + detrFamiliari;
+  const totaleDetrazioni = detrLavoro + detrConiuge + detrFamiliari;
   const irpefNetta = Math.max(0, irpefLorda - totaleDetrazioni);
 
   // 6) Addizionali locali
@@ -790,6 +826,12 @@ function calcola(){
     document.getElementById('out-esoneroMadre').textContent = '+ ' + euro(esoneroMadre);
   } else { rowEsonero.style.display = 'none'; }
 
+  const rowConiuge = document.getElementById('row-detrConiuge');
+  if(coniuge){
+    rowConiuge.style.display = 'flex';
+    document.getElementById('out-detrConiuge').textContent = '+ ' + euro(detrConiuge);
+  } else { rowConiuge.style.display = 'none'; }
+
   const rowFamiliari = document.getElementById('row-detrFamiliari');
   if(familiari){
     rowFamiliari.style.display = 'flex';
@@ -800,14 +842,17 @@ function calcola(){
 
   // notes
   const notes = [];
+  if(coniuge){
+    notes.push({t:'info', html:'<b>Detrazione coniuge a carico:</b> qui semplificata senza le piccole maggiorazioni fisse (10-30 €) previste per redditi del dichiarante tra 29.000 € e 35.200 €, né il rapporto ai mesi effettivi in cui il coniuge è stato a carico nell\'anno.'});
+  }
   if(madre){
     notes.push({t:'info', html:'<b>Esonero madri lavoratrici:</b> qui applicato al massimo consentito (100% dei contributi, tetto 250 €/mese). Nella norma vigente spetta per intero alle madri di 3 o più figli; verifica il tuo caso su INPS prima di fare affidamento su questa cifra.'});
   }
   if(impatriati){
     notes.push({t:'info', html:'<b>Regime impatriati:</b> qui si assume la riduzione base del 50% dell\'imponibile IRPEF, entro il tetto di 600.000 €/anno. Il regime reale richiede requisiti specifici (residenza estera pregressa, qualifica) non verificati da questo calcolatore, e in alcuni casi la riduzione sale al 60%.'});
   }
-  if(aziendaPiccola){
-    notes.push({t:'info', html:'"Azienda con meno di 15 dipendenti" qui è solo informativa: l\'aliquota INPS del 9,19% è la stessa per i dipendenti privati indipendentemente dalla dimensione dell\'azienda (circolare INPS n. 25/2010). La soglia dei 15 dipendenti incide su altri aspetti — a carico del datore di lavoro — non sulla tua trattenuta.'});
+  if(!aziendaPiccola && !pubblico){
+    notes.push({t:'info', html:'L\'aliquota 9,49% qui si applica in modo semplificato a tutte le aziende sopra i 15 dipendenti. Nella realtà la soglia esatta per il contributo CIGS varia per settore (es. 50 dipendenti per commercio, turismo e logistica).'});
   }
   if(imponibileFiscale <= SOGLIA_ESENZIONE_COMUNALE_MILANO){
     notes.push({t:'info', html:'Con questo imponibile, l\'addizionale comunale di Milano risulta azzerata per effetto della soglia di esenzione (' + euro(SOGLIA_ESENZIONE_COMUNALE_MILANO) + '). Verifica la soglia in vigore sul simulatore del MEF nella pagina "Fonti ufficiali".'});
