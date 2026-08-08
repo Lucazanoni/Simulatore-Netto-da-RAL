@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dal lordo al netto — simulatore RAL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#e7edf0;
+    --bg-hatch:#dde5e9;
+    --paper:#fffdf9;
+    --paper-2:#f7f4ec;
+    --ink:#1c2b3a;
+    --ink-soft:#51606d;
+    --ink-faint:#8a97a1;
+    --navy:#1f3a5f;
+    --navy-deep:#122238;
+    --stamp-green:#2f6e4e;
+    --stamp-green-bg:#e9f2ec;
+    --stamp-red:#a63d2f;
+    --stamp-red-bg:#f7ece9;
+    --gold:#a9762f;
+    --gold-bg:#f5eee0;
+    --border:#c7d1d7;
+    --border-soft:#dde4e8;
+    --serif:'Source Serif 4', Georgia, serif;
+    --sans:'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+    --mono:'IBM Plex Mono','Courier New', monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:var(--sans);
+    color:var(--ink);
+    background:
+      linear-gradient(var(--bg-hatch) 1px, transparent 1px) 0 0/100% 28px,
+      var(--bg);
+    min-height:100vh;
+    padding:28px 16px 60px;
+  }
+  .wrap{max-width:900px;margin:0 auto;}
+  .wrap.wide{max-width:1100px;}
+
+  /* ---------- Header ---------- */
+  header.top{
+    display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between;
+    gap:16px; padding:0 4px 20px; border-bottom:2px solid var(--ink);
+    margin-bottom:22px;
+  }
+  .brand-eyebrow{
+    font-family:var(--mono); font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--ink-soft); margin:0 0 6px;
+  }
+  h1{
+    font-family:var(--serif); font-weight:700; font-size:clamp(26px,4vw,38px);
+    margin:0; letter-spacing:-.01em; color:var(--navy-deep);
+  }
+  .subtitle{font-family:var(--sans); color:var(--ink-soft); font-size:14.5px; margin-top:6px; max-width:520px;}
+  nav.tabs{display:flex; gap:2px;}
+  nav.tabs button{
+    font-family:var(--mono); font-size:12.5px; letter-spacing:.03em; text-transform:uppercase;
+    padding:10px 16px; border:1.5px solid var(--ink); background:var(--paper-2);
+    color:var(--ink-soft); cursor:pointer; border-bottom:none;
+    border-radius:6px 6px 0 0; position:relative; top:2px;
+  }
+  nav.tabs button.active{background:var(--paper); color:var(--navy-deep); font-weight:600; top:0;}
+
+  section.view{display:none;}
+  section.view.active{display:block;}
+  .screen{display:none;}
+  .screen.active{display:block;}
+
+  .panel{
+    background:var(--paper); border:1.5px solid var(--ink); border-radius:10px;
+    padding:26px 26px 28px;
+  }
+  .panel h2{
+    font-family:var(--serif); font-size:20px; margin:0 0 4px; color:var(--navy-deep);
+  }
+  .panel .hint{font-size:12.5px; color:var(--ink-soft); margin:0 0 20px; line-height:1.5;}
+
+  .field{margin-bottom:16px;}
+  .field label{
+    display:block; font-size:12.5px; font-weight:600; letter-spacing:.02em;
+    color:var(--navy-deep); margin-bottom:6px; text-transform:uppercase;
+  }
+  .field .field-note{font-size:11.5px; color:var(--ink-faint); margin-top:4px; line-height:1.4;}
+  .money-input{position:relative;}
+  .money-input span{
+    position:absolute; left:12px; top:50%; transform:translateY(-50%);
+    font-family:var(--mono); font-weight:600; color:var(--ink-soft);
+  }
+  input[type="number"], select{
+    width:100%; font-family:var(--mono); font-size:16px; font-weight:600;
+    padding:11px 12px 11px 30px; border:1.5px solid var(--border); border-radius:6px;
+    background:var(--paper-2); color:var(--ink);
+  }
+  select{padding-left:12px; cursor:pointer;}
+  input[type="number"]:focus, select:focus{outline:2px solid var(--navy); outline-offset:1px; border-color:var(--navy);}
+
+  fieldset{border:none; padding:0; margin:0 0 4px;}
+  legend{
+    font-size:12.5px; font-weight:600; letter-spacing:.02em; color:var(--navy-deep);
+    text-transform:uppercase; padding:0; margin-bottom:10px;
+  }
+  .check-row{
+    display:flex; align-items:flex-start; gap:10px; padding:9px 0;
+    border-top:1px dashed var(--border-soft);
+  }
+  .check-row:first-of-type{border-top:none;}
+  .check-row input[type="checkbox"]{
+    width:17px; height:17px; margin-top:2px; flex:none; accent-color:var(--navy);
+    cursor:pointer;
+  }
+  .check-row label{font-size:13.5px; line-height:1.4; cursor:pointer;}
+  .check-row .tag{
+    display:inline-block; font-family:var(--mono); font-size:10px; letter-spacing:.03em;
+    padding:1px 6px; border-radius:3px; margin-left:6px; vertical-align:1px;
+  }
+  .tag.pos{background:var(--stamp-green-bg); color:var(--stamp-green);}
+  .tag.neg{background:var(--stamp-red-bg); color:var(--stamp-red);}
+  .tag.gold{background:var(--gold-bg); color:var(--gold);}
+  .check-row .desc{display:block; font-size:11.5px; color:var(--ink-faint); margin-top:2px;}
+
+  .calc-btn{
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    width:100%; margin-top:22px; padding:16px 20px;
+    background:var(--navy-deep); color:#f2f5f7; border:none; border-radius:8px;
+    font-family:var(--mono); font-size:14px; font-weight:700; letter-spacing:.05em;
+    text-transform:uppercase; cursor:pointer;
+  }
+  .calc-btn:hover{background:var(--navy);}
+  .calc-btn:active{transform:translateY(1px);}
+
+  .back-link{
+    display:inline-flex; align-items:center; gap:6px; margin-bottom:16px;
+    font-family:var(--mono); font-size:12.5px; color:var(--navy); text-decoration:none;
+    cursor:pointer; background:none; border:none; padding:0;
+  }
+  .back-link:hover{text-decoration:underline;}
+
+  /* ---------- Cedolino (result stub) ---------- */
+  .cedolino{
+    background:var(--paper); border:1.5px solid var(--ink); border-radius:10px;
+    position:relative; overflow:hidden;
+  }
+  .cedolino-head{
+    background:var(--navy-deep); color:#f2f5f7; padding:18px 24px;
+    display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;
+  }
+  .cedolino-head .ch-title{font-family:var(--serif); font-size:16px;}
+  .cedolino-head .ch-meta{font-family:var(--mono); font-size:11px; color:#b9c6d1; letter-spacing:.03em;}
+
+  .hero-row{
+    display:grid; grid-template-columns:1fr; gap:0;
+    border-bottom:1.5px dashed var(--border);
+  }
+  .hero-row.cols-2{grid-template-columns:1fr 1fr;}
+  .hero-row.cols-3{grid-template-columns:1fr 1fr 1fr;}
+  @media(max-width:640px){ .hero-row.cols-2, .hero-row.cols-3{grid-template-columns:1fr;} }
+  .hero-cell{padding:20px 22px; position:relative; border-right:1.5px dashed var(--border);}
+  .hero-cell:last-child{border-right:none;}
+  .hero-label{font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.07em; color:var(--ink-soft); margin-bottom:6px;}
+  .hero-value{font-family:var(--mono); font-weight:700; font-size:clamp(22px,3.4vw,30px); color:var(--stamp-green);}
+  .hero-value.small{color:var(--navy-deep); font-size:clamp(18px,2.6vw,23px);}
+  .hero-value.gold{color:var(--gold); font-size:clamp(18px,2.6vw,23px);}
+  .stamp{
+    position:absolute; top:12px; right:14px; width:58px; height:58px; border-radius:50%;
+    border:2px solid var(--stamp-green); color:var(--stamp-green);
+    display:flex; align-items:center; justify-content:center; text-align:center;
+    font-family:var(--mono); font-size:8px; font-weight:700; letter-spacing:.03em;
+    transform:rotate(-9deg); opacity:.5; line-height:1.15;
+  }
+
+  .flow-wrap{
+    padding:20px 24px 8px; border-bottom:1.5px dashed var(--border);
+  }
+  .flow-title{
+    font-family:var(--mono); font-size:11px; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--navy); font-weight:700; margin-bottom:10px;
+  }
+  .flow-legend{
+    display:flex; flex-wrap:wrap; gap:14px; margin:10px 0 4px; font-size:11px; color:var(--ink-soft);
+  }
+  .flow-legend span{display:inline-flex; align-items:center; gap:6px;}
+  .flow-legend i{width:10px; height:10px; border-radius:2px; display:inline-block;}
+
+  .lines{padding:6px 24px 4px;}
+  .line{
+    display:flex; justify-content:space-between; align-items:baseline; gap:12px;
+    padding:9px 0; border-bottom:1px dotted var(--border-soft);
+    font-size:13.5px;
+  }
+  .line .l-label{color:var(--ink); display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
+  .line .l-label .sub{font-size:11px; color:var(--ink-faint); font-family:var(--sans);}
+  .line .l-value{font-family:var(--mono); font-weight:600; white-space:nowrap;}
+  .line.deduct .l-value{color:var(--stamp-red);}
+  .line.add .l-value{color:var(--stamp-green);}
+  .line.total{border-bottom:none; border-top:1.5px solid var(--ink); margin-top:4px; padding-top:12px; font-size:14.5px; font-weight:700;}
+  .line.total .l-value{font-size:16px;}
+  .line.sectionhead{
+    border-bottom:none; padding:16px 0 4px; font-family:var(--mono); font-size:11px;
+    text-transform:uppercase; letter-spacing:.08em; color:var(--navy); font-weight:700;
+  }
+
+  .notes{padding:16px 24px 22px;}
+  .note{
+    display:flex; gap:9px; font-size:12.5px; line-height:1.5; color:var(--ink-soft);
+    padding:8px 10px; background:var(--paper-2); border-left:3px solid var(--navy);
+    border-radius:0 6px 6px 0; margin-bottom:8px;
+  }
+  .note.warn{border-left-color:var(--stamp-red); background:var(--stamp-red-bg); color:#7a2e22;}
+  .note b{color:var(--ink);}
+
+  .perforation{height:0; border-top:2px dashed var(--border); margin:0 0;}
+
+  .disclaimer{
+    margin-top:22px; padding:16px 20px; border:1.5px dashed var(--ink-faint); border-radius:8px;
+    font-size:12px; color:var(--ink-soft); line-height:1.6; background:var(--paper-2);
+  }
+  .disclaimer b{color:var(--ink);}
+
+  /* ---------- Fonti page ---------- */
+  .fonti-intro{max-width:680px; margin-bottom:26px;}
+  .fonti-intro p{font-size:14.5px; line-height:1.65; color:var(--ink-soft);}
+  .source-grid{display:grid; grid-template-columns:1fr; gap:14px;}
+  @media(min-width:720px){ .source-grid{grid-template-columns:1fr 1fr;} }
+  .source-card{
+    background:var(--paper); border:1.5px solid var(--ink); border-radius:10px;
+    padding:18px 20px; display:flex; flex-direction:column; gap:8px;
+  }
+  .source-card .src-org{
+    font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.08em;
+    color:var(--navy); font-weight:700;
+  }
+  .source-card h3{font-family:var(--serif); font-size:16px; margin:0; color:var(--navy-deep);}
+  .source-card p{font-size:12.8px; color:var(--ink-soft); line-height:1.5; margin:0;}
+  .source-card a{
+    align-self:flex-start; margin-top:4px; font-family:var(--mono); font-size:12px;
+    color:var(--stamp-green); text-decoration:none; border-bottom:1px solid var(--stamp-green);
+    padding-bottom:1px;
+  }
+  .source-card a:hover{opacity:.7;}
+
+  footer.page-footer{
+    text-align:center; margin-top:40px; font-size:11.5px; color:var(--ink-faint);
+    font-family:var(--mono);
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap">
+
+  <header class="top">
+    <div>
+      <p class="brand-eyebrow">Simulazione busta paga</p>
+      <h1>Dal lordo al netto</h1>
+      <p class="subtitle">Inserisci una RAL e vedi come si arriva allo stipendio netto, voce per voce — con le agevolazioni più comuni. Caso semplificato: dipendente a Milano, contratto a tempo indeterminato.</p>
+    </div>
+    <nav class="tabs">
+      <button id="tab-calc" class="active" onclick="showView('calc')">Calcolatore</button>
+      <button id="tab-fonti" onclick="showView('fonti')">Fonti ufficiali</button>
+    </nav>
+  </header>
+
+  <!-- ============ VIEW: CALCOLATORE ============ -->
+  <section id="view-calc" class="view active">
+
+    <!-- SCREEN 1: FORM ONLY -->
+    <div id="screen-form" class="screen active">
+      <div class="panel">
+        <h2>Il tuo modulo</h2>
+        <p class="hint">Compila come faresti con l'ufficio del personale, poi premi "Calcola" per vedere il cedolino.</p>
+
+        <div class="field">
+          <label for="ral">RAL — retribuzione annua lorda</label>
+          <div class="money-input">
+            <span>€</span>
+            <input type="number" id="ral" value="32000" min="0" step="500">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="mensilita">Numero di mensilità</label>
+          <select id="mensilita">
+            <option value="12">12</option>
+            <option value="13" selected>13 (tredicesima)</option>
+            <option value="14">14 (tredicesima + quattordicesima)</option>
+          </select>
+          <p class="field-note">La RAL resta la stessa: cambia solo come viene divisa nei cedolini mensili. Il risultato mostrerà separatamente il netto del mese "normale" e quello del mese con la mensilità aggiuntiva.</p>
+        </div>
+
+        <fieldset>
+          <legend>Situazione personale</legend>
+
+          <div class="check-row">
+            <input type="checkbox" id="figli">
+            <label for="figli">Figli fiscalmente a carico
+              <span class="desc">Per i figli minori di 21 anni, oggi il sostegno principale è l'Assegno Unico Universale INPS, erogato a parte — non è incluso in questo cedolino.</span>
+            </label>
+          </div>
+
+          <div class="check-row">
+            <input type="checkbox" id="familiari">
+            <label for="familiari">Genitori o nonni conviventi a carico
+              <span class="desc">Stima della detrazione per altri familiari a carico (art. 12 TUIR), riservata dal 2025 agli ascendenti conviventi. Se sono più di uno o la detrazione è condivisa con un altro familiare avente diritto, l'importo reale va diviso pro quota.</span>
+            </label>
+          </div>
+
+          <div class="check-row">
+            <input type="checkbox" id="madre">
+            <label for="madre">Madre lavoratrice con figli a carico<span class="tag pos">esonero INPS</span>
+              <span class="desc">Modella l'esonero contributivo IVS (100% fino a 250 €/mese, tetto 3.000 €/anno), pieno per le madri di 3+ figli fino al 2026.</span>
+            </label>
+          </div>
+
+        </fieldset>
+
+        <fieldset>
+          <legend>Contratto e regime</legend>
+
+          <div class="check-row">
+            <input type="checkbox" id="pubblico">
+            <label for="pubblico">Dipendente pubblico
+              <span class="desc">Aliquota INPS a tuo carico più bassa (8,80% invece che 9,19%).</span>
+            </label>
+          </div>
+
+          <div class="check-row">
+            <input type="checkbox" id="aziendaPiccola">
+            <label for="aziendaPiccola">Azienda con meno di 15 dipendenti
+              <span class="desc">Solo settore privato. La soglia dei 15 dipendenti pesa soprattutto sul datore di lavoro (obbligo assunzione disabili, CIGS, tutele in caso di licenziamento): non modifica la tua trattenuta INPS, che resta 9,19% a prescindere dalla dimensione dell'azienda.</span>
+            </label>
+          </div>
+
+          <div class="check-row">
+            <input type="checkbox" id="impatriati">
+            <label for="impatriati">Rientro dei cervelli (regime impatriati)<span class="tag gold">-50% imponibile</span>
+              <span class="desc">Dimezza l'imponibile IRPEF (D.Lgs. 209/2023), tetto 600.000 €/anno per 5 anni. Qui si assume la riduzione base del 50%, senza verificare i requisiti soggettivi (residenza estera pregressa, qualifica, ecc.).</span>
+            </label>
+          </div>
+
+        </fieldset>
+
+        <button class="calc-btn" onclick="calcolaEVaiARisultato()">Calcola →</button>
+      </div>
+    </div>
+
+    <!-- SCREEN 2: RISULTATO -->
+    <div id="screen-result" class="screen">
+      <button class="back-link" onclick="tornaAlForm()">← Modifica dati</button>
+
+      <div class="cedolino">
+        <div class="cedolino-head">
+          <div class="ch-title">Cedolino simulato</div>
+          <div class="ch-meta">MILANO (MI) · TEMPO INDETERMINATO · IRPEF 2026</div>
+        </div>
+
+        <div class="hero-row cols-2" id="hero-row-annuale">
+          <div class="hero-cell">
+            <div class="hero-label">Netto annuale</div>
+            <div class="hero-value" id="out-nettoAnno">€ 0</div>
+            <div class="stamp">NETTO<br>STIMATO</div>
+          </div>
+          <div class="hero-cell">
+            <div class="hero-label">RAL lorda</div>
+            <div class="hero-value small" id="out-ralHero">€ 0</div>
+          </div>
+        </div>
+
+        <div class="hero-row cols-2" id="hero-row-mensile-2">
+          <div class="hero-cell">
+            <div class="hero-label">Netto mensile — mese ordinario</div>
+            <div class="hero-value small" id="out-nettoMeseOrdinario">€ 0</div>
+          </div>
+          <div class="hero-cell" id="cell-mensilita-extra" style="display:none;">
+            <div class="hero-label" id="label-mensilita-extra">Netto mensile — mensilità aggiuntiva</div>
+            <div class="hero-value gold" id="out-nettoMeseExtra">€ 0</div>
+          </div>
+        </div>
+
+        <div class="flow-wrap">
+          <div class="flow-title">Come si divide la RAL</div>
+          <svg id="flow-svg" width="100%" viewBox="0 0 640 300" role="img" preserveAspectRatio="xMidYMid meet">
+            <title>Suddivisione della RAL in contributi INPS, IRPEF netta, addizionali locali e netto</title>
+            <desc>Diagramma a flusso proporzionale che mostra come la retribuzione annua lorda si divide, prima in contributi INPS e imponibile fiscale, poi l'imponibile fiscale in IRPEF netta, addizionali locali e netto.</desc>
+            <!-- riga 1: RAL -->
+            <rect id="fRal" x="40" y="20" width="560" height="36" rx="5" fill="var(--navy-deep)"/>
+            <text id="fRalLabel" x="320" y="38" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="var(--mono)" font-size="12" font-weight="700">RAL</text>
+            <!-- connettori riga1 -> riga2 -->
+            <rect id="flowA" x="40" y="56" width="120" height="56" fill="var(--stamp-red)" opacity="0.15"/>
+            <rect id="flowB" x="170" y="56" width="430" height="56" fill="var(--navy)" opacity="0.15"/>
+            <!-- riga 2: contributi inps | imponibile -->
+            <rect id="fInps" x="40" y="112" width="120" height="36" rx="5" fill="var(--stamp-red)"/>
+            <text id="fInpsLabel" x="100" y="130" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="var(--mono)" font-size="10.5" font-weight="700">INPS</text>
+            <rect id="fImponibile" x="170" y="112" width="430" height="36" rx="5" fill="var(--navy)"/>
+            <text id="fImponibileLabel" x="385" y="130" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="var(--mono)" font-size="10.5" font-weight="700">Imponibile fiscale</text>
+            <!-- connettori riga2 -> riga3, solo sotto imponibile -->
+            <rect id="flowC" x="170" y="148" width="120" height="56" fill="var(--stamp-red)" opacity="0.13"/>
+            <rect id="flowD" x="298" y="148" width="80" height="56" fill="var(--gold)" opacity="0.13"/>
+            <rect id="flowE" x="386" y="148" width="214" height="56" fill="var(--stamp-green)" opacity="0.13"/>
+            <!-- riga 3: irpef netta | addizionali | netto -->
+            <rect id="fIrpef" x="170" y="204" width="120" height="36" rx="5" fill="var(--stamp-red)"/>
+            <text id="fIrpefLabel" x="230" y="222" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="var(--mono)" font-size="10" font-weight="700">IRPEF</text>
+            <rect id="fAdd" x="298" y="204" width="80" height="36" rx="5" fill="var(--gold)"/>
+            <text id="fAddLabel" x="338" y="222" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="var(--mono)" font-size="9.5" font-weight="700">Addiz.</text>
+            <rect id="fNetto" x="386" y="204" width="214" height="36" rx="5" fill="var(--stamp-green)"/>
+            <text id="fNettoLabel" x="493" y="222" text-anchor="middle" dominant-baseline="central" fill="#fff" font-family="var(--mono)" font-size="11.5" font-weight="700">Netto</text>
+            <!-- didascalie sotto ogni riga -->
+            <text id="capRal" x="320" y="72" text-anchor="middle" fill="var(--ink-soft)" font-family="var(--mono)" font-size="11">€ 0</text>
+            <text id="capInps" x="100" y="164" text-anchor="middle" fill="var(--ink-soft)" font-family="var(--mono)" font-size="10">€ 0</text>
+            <text id="capImponibile" x="385" y="164" text-anchor="middle" fill="var(--ink-soft)" font-family="var(--mono)" font-size="10">€ 0</text>
+            <text id="capIrpef" x="230" y="256" text-anchor="middle" fill="var(--ink-soft)" font-family="var(--mono)" font-size="9.5">€ 0</text>
+            <text id="capAdd" x="338" y="256" text-anchor="middle" fill="var(--ink-soft)" font-family="var(--mono)" font-size="9.5">€ 0</text>
+            <text id="capNetto" x="493" y="256" text-anchor="middle" fill="var(--ink-soft)" font-family="var(--mono)" font-size="10.5">€ 0</text>
+          </svg>
+          <div class="flow-legend">
+            <span><i style="background:var(--navy-deep)"></i>RAL / imponibile</span>
+            <span><i style="background:var(--stamp-red)"></i>Trattenute (INPS, IRPEF, addizionali)</span>
+            <span><i style="background:var(--gold)"></i>Addizionali locali</span>
+            <span><i style="background:var(--stamp-green)"></i>Netto</span>
+          </div>
+        </div>
+
+        <div class="lines">
+
+          <div class="line sectionhead">Retribuzione</div>
+          <div class="line">
+            <span class="l-label">RAL lorda annua</span>
+            <span class="l-value" id="out-ral">€ 0</span>
+          </div>
+          <div class="line">
+            <span class="l-label">Lordo per mensilità <span class="sub" id="out-mensilitaLabel"></span></span>
+            <span class="l-value" id="out-quotaLorda">€ 0</span>
+          </div>
+
+          <div class="line sectionhead">Trattenute previdenziali</div>
+          <div class="line deduct">
+            <span class="l-label">Contributi INPS <span class="sub" id="out-aliquotaInps"></span></span>
+            <span class="l-value" id="out-inps">− € 0</span>
+          </div>
+          <div class="line add" id="row-esoneroMadre" style="display:none;">
+            <span class="l-label">Esonero contributivo lavoratrici madri</span>
+            <span class="l-value" id="out-esoneroMadre">+ € 0</span>
+          </div>
+
+          <div class="line sectionhead">Base imponibile fiscale</div>
+          <div class="line">
+            <span class="l-label">Imponibile IRPEF <span class="sub" id="out-noteImpatriati"></span></span>
+            <span class="l-value" id="out-imponibile">€ 0</span>
+          </div>
+
+          <div class="line sectionhead">Trattenute fiscali</div>
+          <div class="line deduct">
+            <span class="l-label">IRPEF lorda (23% · 33% · 43%)</span>
+            <span class="l-value" id="out-irpefLorda">− € 0</span>
+          </div>
+          <div class="line add">
+            <span class="l-label">Detrazione lavoro dipendente</span>
+            <span class="l-value" id="out-detrLavoro">+ € 0</span>
+          </div>
+          <div class="line add" id="row-detrFamiliari" style="display:none;">
+            <span class="l-label">Detrazione altri familiari a carico</span>
+            <span class="l-value" id="out-detrFamiliari">+ € 0</span>
+          </div>
+          <div class="line deduct">
+            <span class="l-label">IRPEF netta</span>
+            <span class="l-value" id="out-irpefNetta">− € 0</span>
+          </div>
+          <div class="line deduct">
+            <span class="l-label">Addizionale regionale (Lombardia)</span>
+            <span class="l-value" id="out-addReg">− € 0</span>
+          </div>
+          <div class="line deduct">
+            <span class="l-label">Addizionale comunale (Milano)</span>
+            <span class="l-value" id="out-addCom">− € 0</span>
+          </div>
+
+          <div class="line total">
+            <span class="l-label">Netto annuale</span>
+            <span class="l-value" id="out-nettoAnno2">€ 0</span>
+          </div>
+        </div>
+
+        <div class="perforation"></div>
+
+        <div class="notes" id="notes-box">
+          <!-- filled by JS -->
+        </div>
+      </div>
+
+      <div class="disclaimer">
+        <b>Cosa considera, e cosa no, questo calcolatore.</b> È una simulazione semplificata pensata per un caso standard: dipendente privato o pubblico, tempo indeterminato, residenza fiscale a Milano, con le regole IRPEF e INPS indicativamente in vigore nel 2026. Non copre tutti i casi reali: non considera, tra l'altro, il massimale contributivo, il contributo aggiuntivo IVS dell'1% oltre 52.190 €/anno, oneri deducibili/detraibili personali (spese sanitarie, mutuo, ecc.), il conguaglio di fine anno, il TFR. Il netto del mese "ordinario" e quello della mensilità aggiuntiva sono stimati assumendo che l'IRPEF sia distribuita in parti uguali sui mesi e che le addizionali regionale/comunale — come avviene di norma in busta paga — siano trattenute solo sui mesi ordinari, non sulla tredicesima/quattordicesima. Per un calcolo vincolante usa la busta paga del datore di lavoro o un CAF/commercialista, e verifica le aliquote aggiornate sulla pagina "Fonti ufficiali".
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ============ VIEW: FONTI ============ -->
+  <section id="view-fonti" class="view">
+    <div class="fonti-intro">
+      <h2 style="font-family:var(--serif); font-size:22px; color:var(--navy-deep); margin:0 0 10px;">Da dove vengono questi numeri</h2>
+      <p>Questo calcolatore usa aliquote e soglie pubblicate da INPS e dal Ministero dell'Economia e delle Finanze (Dipartimento delle Finanze), più le pagine dell'Agenzia delle Entrate per IRPEF, detrazioni e regime impatriati — l'Agenzia opera sotto la vigilanza del MEF. Le regole fiscali cambiano spesso: prima di usare questi dati per decisioni reali, verifica sempre la fonte primaria collegata qui sotto.</p>
+    </div>
+
+    <div class="source-grid">
+
+      <div class="source-card">
+        <span class="src-org">INPS</span>
+        <h3>Estratto conto contributivo — per il lavoratore</h3>
+        <p>Pagina rivolta direttamente al lavoratore (privato e pubblico): spiega cosa sono i contributi accreditati e come consultarli.</p>
+        <a href="https://www.inps.it/it/it/dettaglio-scheda.it.schede-servizio-strumento.schede-servizi.consultazione-estratto-conto-contributivo-previdenziale-50119.consultazione-estratto-conto-contributivo-previdenziale.html" target="_blank" rel="noopener">inps.it — estratto conto contributivo →</a>
+      </div>
+
+      <div class="source-card">
+        <span class="src-org">INPS</span>
+        <h3>Contributi obbligatori — dipendenti pubblici</h3>
+        <p>Pagina dedicata agli iscritti alla Gestione Dipendenti Pubblici: base per l'aliquota IVS più bassa applicata al comparto pubblico.</p>
+        <a href="https://www.inps.it/it/it/dettaglio-approfondimento.schede-informative.49814.contributi-obbligatori-degli-iscritti-alla-gestione-dipendenti-pubblici.html" target="_blank" rel="noopener">inps.it — dipendenti pubblici →</a>
+      </div>
+
+      <div class="source-card">
+        <span class="src-org">INPS</span>
+        <h3>Lavoratrici madri — istruzioni esonero contributivo</h3>
+        <p>Comunicazione rivolta alle lavoratrici madri: requisiti e importi dell'esonero contributivo IVS (madri di 3+ figli, tetto 3.000 €/anno).</p>
+        <a href="https://www.inps.it/it/it/inps-comunica/notizie/dettaglio-news-page.news.2025.02.lavoratrici-madri-istruzioni-per-l-esonero-contributivo-2025.html" target="_blank" rel="noopener">inps.it — esonero lavoratrici madri →</a>
+      </div>
+
+      <div class="source-card">
+        <span class="src-org">INPS</span>
+        <h3>Circolare n. 25/2010 — aliquota IVS "piena"</h3>
+        <p>Conferma che il 9,19% (8,89% + 0,30% aggiuntivo dal 2007) è l'aliquota a carico del lavoratore privato ormai a regime, non legata alla dimensione dell'azienda.</p>
+        <a href="https://servizi2.inps.it/servizi/Bussola/VisualizzaDoc.aspx?sVirtualURL=/circolari/Circolare+numero+25+del+18-02-2010.htm" target="_blank" rel="noopener">servizi2.inps.it — circolare 25/2010 →</a>
+      </div>
+
+      <div class="source-card">
+        <span class="src-org">Comune di Milano</span>
+        <h3>Addizionale comunale IRPEF — pagina ufficiale</h3>
+        <p>Fonte diretta di aliquota (0,8%) e soglia di esenzione (23.000 €) usate nel calcolatore.</p>
+        <a href="https://www.comune.milano.it/argomenti/tributi/addizionale-comunale-irpef" target="_blank" rel="noopener">comune.milano.it — addizionale comunale →</a>
+      </div>
+
+      <div class="source-card">
+        <span class="src-org">MEF · Dipartimento delle Finanze</span>
+        <h3>Addizionale regionale IRPEF</h3>
+        <p>Normativa e aliquote dell'addizionale regionale, applicata sullo stesso imponibile IRPEF nazionale.</p>
+        <a href="https://www.finanze.gov.it/it/fiscalita/fiscalita-regionale-e-locale/Addizionale-regionale-allIRPEF/" target="_blank" rel="noopener">finanze.gov.it — addizionale regionale →</a>
+      </div>
+
+      <div class="source-card">
+        <span class="src-org">MEF · Dipartimento delle Finanze</span>
+        <h3>Simulatore addizionale comunale</h3>
+        <p>Simulatore ufficiale per verificare l'aliquota e l'eventuale soglia di esenzione del proprio Comune.</p>
+        <a href="https://www.finanze.gov.it/it/fiscalita/fiscalita-regionale-e-locale/Addizionale-comunale-allIRPEF/simulatore-addizionale-comunale-irpef-e-dati-statistici/" target="_blank" rel="noopener">finanze.gov.it — simulatore comunale →</a>
+      </div>
+
+      <div class="source-card">
+        <span class="src-org">Agenzia delle Entrate (vigilanza MEF)</span>
+        <h3>Regime speciale lavoratori impatriati</h3>
+        <p>Requisiti e funzionamento del "rientro dei cervelli": riduzione dell'imponibile IRPEF, tetto di reddito agevolabile, durata del beneficio.</p>
+        <a href="https://www.agenziaentrate.gov.it/portale/lavoratori-impatriati-209-2023/infogen-lavoratori-impatriati-209-2023-cittadini" target="_blank" rel="noopener">agenziaentrate.gov.it — lavoratori impatriati →</a>
+      </div>
+
+      <div class="source-card">
+        <span class="src-org">Regione Lombardia</span>
+        <h3>Addizionale regionale IRPEF — scaglioni Lombardia</h3>
+        <p>Fonte diretta degli scaglioni usati in questo calcolatore: 1,23% fino a 15.000 €, 1,58% fino a 28.000 €, 1,72% fino a 50.000 €, 1,73% oltre.</p>
+        <a href="https://www.regione.lombardia.it/bollo-auto-e-tributi-regionali/red-addizionale-regionale-irpef" target="_blank" rel="noopener">regione.lombardia.it — addizionale IRPEF →</a>
+      </div>
+
+    </div>
+
+    <div class="disclaimer" style="margin-top:26px;">
+      <b>Nota.</b> I link portano a pagine istituzionali che possono cambiare contenuto o indirizzo nel tempo. Le soglie IRPEF, le detrazioni e le aliquote di addizionale comunale riportate nel calcolatore sono aggiornate al momento della creazione di questo calcolatore (Legge di Bilancio 2026): verificale sempre sulle fonti sopra prima di un uso reale.
+    </div>
+  </section>
+
+  <footer class="page-footer">STRUMENTO A SCOPO ILLUSTRATIVO — NON SOSTITUISCE UN CEDOLINO UFFICIALE NÉ UNA CONSULENZA FISCALE</footer>
+</div>
+
+<script>
+function showView(v){
+  document.getElementById('view-calc').classList.toggle('active', v==='calc');
+  document.getElementById('view-fonti').classList.toggle('active', v==='fonti');
+  document.getElementById('tab-calc').classList.toggle('active', v==='calc');
+  document.getElementById('tab-fonti').classList.toggle('active', v==='fonti');
+}
+
+function tornaAlForm(){
+  document.getElementById('screen-result').classList.remove('active');
+  document.getElementById('screen-form').classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function euro(n){
+  const sign = n < -0.004 ? '-' : '';
+  const v = Math.abs(n);
+  return '€ ' + v.toLocaleString('it-IT', {minimumFractionDigits:0, maximumFractionDigits:0});
+}
+
+// imposta progressiva a scaglioni: soglie = [[sogliaAssoluta, aliquota], ...] crescenti, ultima Infinity
+function impostaScaglioni(base, scaglioni){
+  let imposta = 0, prev = 0;
+  for(const [soglia, aliquota] of scaglioni){
+    if(base > prev){
+      const quota = Math.min(base, soglia) - prev;
+      imposta += quota * aliquota;
+      prev = soglia;
+    } else break;
+  }
+  return imposta;
+}
+
+function detrazioneLavoroDipendente(rc){
+  if(rc <= 0) return 0;
+  if(rc <= 15000) return 1955;
+  if(rc <= 28000) return 1910 + 1190 * ((28000 - rc) / 13000);
+  if(rc <= 50000) return 1910 * ((50000 - rc) / 22000);
+  return 0;
+}
+
+const SCAGLIONI_IRPEF = [[28000, 0.23],[50000, 0.33],[Infinity, 0.43]];
+const SCAGLIONI_ADD_REGIONALE_LOMBARDIA = [[15000, 0.0123],[28000, 0.0158],[50000, 0.0172],[Infinity, 0.0173]];
+const SOGLIA_ESENZIONE_COMUNALE_MILANO = 23000;
+const ALIQUOTA_COMUNALE_MILANO = 0.008;
+
+function calcolaEVaiARisultato(){
+  calcola();
+  document.getElementById('screen-form').classList.remove('active');
+  document.getElementById('screen-result').classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// Aggiorna larghezze, posizioni e didascalie del diagramma proporzionale RAL -> sottocomponenti.
+// Riga 1 (RAL, 100%) si divide in riga 2 (contributi INPS | imponibile fiscale);
+// il segmento "imponibile fiscale" della riga 2 si divide a sua volta nella riga 3
+// (IRPEF netta | addizionali locali | netto), allineata sotto di esso.
+function aggiornaDiagrammaFlusso(ral, contributiInps, imponibileBase, irpefNetta, addTotale, nettoAnnuale){
+  const X0 = 40, FULL_W = 560;
+  if(ral <= 0){ ral = 1; }
+  const wInps = FULL_W * (contributiInps / ral);
+  const wImponibile = FULL_W - wInps;
+  const xImponibile = X0 + wInps;
+
+  const setRect = (id, x, w) => {
+    const el = document.getElementById(id);
+    el.setAttribute('x', x.toFixed(1));
+    el.setAttribute('width', Math.max(w, 0).toFixed(1));
+  };
+  const setText = (id, x) => document.getElementById(id).setAttribute('x', x.toFixed(1));
+
+  setRect('fInps', X0, wInps);
+  setText('fInpsLabel', X0 + wInps/2);
+  setRect('fImponibile', xImponibile, wImponibile);
+  setText('fImponibileLabel', xImponibile + wImponibile/2);
+  setRect('flowA', X0, wInps);
+  setRect('flowB', xImponibile, wImponibile);
+  setText('capInps', X0 + wInps/2);
+  setText('capImponibile', xImponibile + wImponibile/2);
+  document.getElementById('capInps').textContent = euro(contributiInps);
+  document.getElementById('capImponibile').textContent = euro(imponibileBase);
+  document.getElementById('capRal').textContent = euro(ral);
+
+  const base = imponibileBase > 0 ? imponibileBase : 1;
+  const wIrpef = wImponibile * (irpefNetta / base);
+  const wAdd = wImponibile * (addTotale / base);
+  const wNetto = Math.max(wImponibile - wIrpef - wAdd, 0);
+  const xIrpef = xImponibile;
+  const xAdd = xIrpef + wIrpef;
+  const xNetto = xAdd + wAdd;
+
+  setRect('fIrpef', xIrpef, wIrpef);
+  setText('fIrpefLabel', xIrpef + wIrpef/2);
+  setRect('fAdd', xAdd, wAdd);
+  setText('fAddLabel', xAdd + wAdd/2);
+  setRect('fNetto', xNetto, wNetto);
+  setText('fNettoLabel', xNetto + wNetto/2);
+  setRect('flowC', xIrpef, wIrpef);
+  setRect('flowD', xAdd, wAdd);
+  setRect('flowE', xNetto, wNetto);
+  setText('capIrpef', xIrpef + wIrpef/2);
+  setText('capAdd', xAdd + wAdd/2);
+  setText('capNetto', xNetto + wNetto/2);
+  document.getElementById('capIrpef').textContent = euro(irpefNetta);
+  document.getElementById('capAdd').textContent = euro(addTotale);
+  document.getElementById('capNetto').textContent = euro(nettoAnnuale);
+
+  // Nasconde le etichette interne quando il segmento è troppo stretto per contenerle
+  const hideIfNarrow = (rectId, labelId, minW) => {
+    const w = parseFloat(document.getElementById(rectId).getAttribute('width'));
+    document.getElementById(labelId).style.display = w < minW ? 'none' : '';
+  };
+  hideIfNarrow('fInps', 'fInpsLabel', 46);
+  hideIfNarrow('fIrpef', 'fIrpefLabel', 46);
+  hideIfNarrow('fAdd', 'fAddLabel', 46);
+  hideIfNarrow('fNetto', 'fNettoLabel', 46);
+}
+
+function calcola(){
+  const ral = Math.max(0, parseFloat(document.getElementById('ral').value) || 0);
+  const mensilita = parseInt(document.getElementById('mensilita').value, 10);
+  const figli = document.getElementById('figli').checked;
+  const familiari = document.getElementById('familiari').checked;
+  const madre = document.getElementById('madre').checked;
+  const pubblico = document.getElementById('pubblico').checked;
+  const aziendaPiccola = document.getElementById('aziendaPiccola').checked;
+  const impatriati = document.getElementById('impatriati').checked;
+
+  // 1) Aliquota INPS — 9,19% è l'aliquota piena e fissa per i dipendenti privati
+  // (L. 296/2006: lo 0,30% aggiuntivo storico è già incluso dal 2007 in poi, a prescindere
+  // dalla dimensione dell'azienda — INPS circolare n. 25/2010). Per il pubblico impiego 8,80%.
+  let aliquotaInps, aliquotaLabel;
+  if(pubblico){
+    aliquotaInps = 0.0880; aliquotaLabel = '8,80% (settore pubblico)';
+  } else {
+    aliquotaInps = 0.0919; aliquotaLabel = '9,19% (settore privato)';
+  }
+  const contributiInpsLordi = ral * aliquotaInps;
+
+  // 2) Esonero madri lavoratrici
+  const esoneroMadre = madre ? Math.min(contributiInpsLordi, 3000) : 0;
+  const contributiInps = contributiInpsLordi - esoneroMadre;
+
+  // 3) Imponibile fiscale + eventuale regime impatriati
+  const imponibileBase = Math.max(0, ral - contributiInps);
+  const percImponibile = impatriati ? 0.5 : 1;
+  const imponibileFiscale = imponibileBase * percImponibile;
+
+  // 4) IRPEF lorda
+  const irpefLorda = impostaScaglioni(imponibileFiscale, SCAGLIONI_IRPEF);
+
+  // 5) Detrazioni
+  const detrLavoro = detrazioneLavoroDipendente(imponibileFiscale);
+  const detrFamiliari = familiari ? Math.max(0, 750 * ((80000 - imponibileFiscale) / 80000)) : 0;
+  const totaleDetrazioni = detrLavoro + detrFamiliari;
+  const irpefNetta = Math.max(0, irpefLorda - totaleDetrazioni);
+
+  // 6) Addizionali locali
+  const addRegionale = impostaScaglioni(imponibileFiscale, SCAGLIONI_ADD_REGIONALE_LOMBARDIA);
+  const addComunale = imponibileFiscale > SOGLIA_ESENZIONE_COMUNALE_MILANO ? imponibileFiscale * ALIQUOTA_COMUNALE_MILANO : 0;
+  const addTotale = addRegionale + addComunale;
+
+  // 7) Totali annuali
+  const trattenuteTotali = contributiInps + irpefNetta + addTotale;
+  const nettoAnnuale = ral - trattenuteTotali;
+
+  // 8) Ripartizione mensile — differenzia il mese "ordinario" dalla mensilità aggiuntiva
+  //    (tredicesima/quattordicesima). Le addizionali regionale/comunale, come in busta paga
+  //    reale, vengono trattenute solo sui 12 mesi ordinari, non sulle mensilità aggiuntive.
+  const quotaMensileLorda = ral / mensilita;
+  const inpsQuota = contributiInps / mensilita;
+  const irpefQuota = irpefNetta / mensilita;
+  const extraMensilita = mensilita - 12; // 0, 1 o 2
+  const nettoMeseOrdinario = quotaMensileLorda - inpsQuota - irpefQuota - (addTotale / 12);
+  const nettoMeseExtra = quotaMensileLorda - inpsQuota - irpefQuota;
+
+  // ---- render ----
+  document.getElementById('out-nettoAnno').textContent = euro(nettoAnnuale);
+  document.getElementById('out-nettoAnno2').textContent = euro(nettoAnnuale);
+  document.getElementById('out-ralHero').textContent = euro(ral);
+  document.getElementById('out-nettoMeseOrdinario').textContent = euro(nettoMeseOrdinario);
+  document.getElementById('out-ral').textContent = euro(ral);
+  document.getElementById('out-quotaLorda').textContent = euro(quotaMensileLorda);
+  document.getElementById('out-mensilitaLabel').textContent = '(RAL / ' + mensilita + ')';
+  document.getElementById('out-aliquotaInps').textContent = '(' + aliquotaLabel + ')';
+  document.getElementById('out-inps').textContent = '− ' + euro(contributiInps);
+  document.getElementById('out-imponibile').textContent = euro(imponibileFiscale);
+  document.getElementById('out-noteImpatriati').textContent = impatriati ? '(ridotto 50% — regime impatriati)' : '';
+  document.getElementById('out-irpefLorda').textContent = '− ' + euro(irpefLorda);
+  document.getElementById('out-detrLavoro').textContent = '+ ' + euro(detrLavoro);
+  document.getElementById('out-irpefNetta').textContent = '− ' + euro(irpefNetta);
+  document.getElementById('out-addReg').textContent = '− ' + euro(addRegionale);
+  document.getElementById('out-addCom').textContent = '− ' + euro(addComunale);
+
+  const cellExtra = document.getElementById('cell-mensilita-extra');
+  if(extraMensilita > 0){
+    cellExtra.style.display = '';
+    const nomeExtra = extraMensilita === 1 ? 'tredicesima' : 'tredicesima / quattordicesima';
+    document.getElementById('label-mensilita-extra').textContent = 'Netto mensile — ' + nomeExtra;
+    document.getElementById('out-nettoMeseExtra').textContent = euro(nettoMeseExtra);
+  } else {
+    cellExtra.style.display = 'none';
+  }
+
+  const rowEsonero = document.getElementById('row-esoneroMadre');
+  if(esoneroMadre > 0){
+    rowEsonero.style.display = 'flex';
+    document.getElementById('out-esoneroMadre').textContent = '+ ' + euro(esoneroMadre);
+  } else { rowEsonero.style.display = 'none'; }
+
+  const rowFamiliari = document.getElementById('row-detrFamiliari');
+  if(familiari){
+    rowFamiliari.style.display = 'flex';
+    document.getElementById('out-detrFamiliari').textContent = '+ ' + euro(detrFamiliari);
+  } else { rowFamiliari.style.display = 'none'; }
+
+  aggiornaDiagrammaFlusso(ral, contributiInps, imponibileBase, irpefNetta, addTotale, nettoAnnuale);
+
+  // notes
+  const notes = [];
+  if(madre){
+    notes.push({t:'info', html:'<b>Esonero madri lavoratrici:</b> qui applicato al massimo consentito (100% dei contributi, tetto 250 €/mese). Nella norma vigente spetta per intero alle madri di 3 o più figli; verifica il tuo caso su INPS prima di fare affidamento su questa cifra.'});
+  }
+  if(impatriati){
+    notes.push({t:'info', html:'<b>Regime impatriati:</b> qui si assume la riduzione base del 50% dell\'imponibile IRPEF, entro il tetto di 600.000 €/anno. Il regime reale richiede requisiti specifici (residenza estera pregressa, qualifica) non verificati da questo calcolatore, e in alcuni casi la riduzione sale al 60%.'});
+  }
+  if(aziendaPiccola){
+    notes.push({t:'info', html:'"Azienda con meno di 15 dipendenti" qui è solo informativa: l\'aliquota INPS del 9,19% è la stessa per i dipendenti privati indipendentemente dalla dimensione dell\'azienda (circolare INPS n. 25/2010). La soglia dei 15 dipendenti incide su altri aspetti — a carico del datore di lavoro — non sulla tua trattenuta.'});
+  }
+  if(imponibileFiscale <= SOGLIA_ESENZIONE_COMUNALE_MILANO){
+    notes.push({t:'info', html:'Con questo imponibile, l\'addizionale comunale di Milano risulta azzerata per effetto della soglia di esenzione (' + euro(SOGLIA_ESENZIONE_COMUNALE_MILANO) + '). Verifica la soglia in vigore sul simulatore del MEF nella pagina "Fonti ufficiali".'});
+  }
+  if(extraMensilita > 0){
+    notes.push({t:'info', html:'Il netto della mensilità aggiuntiva è più alto di quello ordinario perché, come di norma in busta paga, le addizionali regionale e comunale sono trattenute solo sui 12 mesi ordinari.'});
+  }
+  notes.push({t:'info', html:'Aliquote IRPEF 2026 usate: 23% fino a 28.000 €, 33% fino a 50.000 €, 43% oltre — Legge di Bilancio 2026.'});
+
+  const box = document.getElementById('notes-box');
+  box.innerHTML = notes.map(n => '<div class="note ' + (n.t==='warn'?'warn':'') + '">' + n.html + '</div>').join('');
+}
+
+calcola();
+</script>
+</body>
+</html>
