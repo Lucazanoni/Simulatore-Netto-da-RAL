@@ -4,8 +4,8 @@ Prototipo per stimare la retribuzione netta mensile e annuale a partire dalla RA
 
 Questa simulazione è pensata per ottenere uno strumento funzionante e di rapido utilizzo, non per coprire ogni casistica: contiene quindi delle semplificazioni. In particolare considera solo il caso di un dipendente a tempo indeterminato con residenza fiscale nel Comune di Milano.
 
-**Link live (dopo la pubblicazione con GitHub Pages):**
-`https://<tuo-username>.github.io/<nome-repo>/`
+**Link live:**
+https://lucazanoni.github.io/Simulatore-Netto-da-RAL/
 
 ## Disclaimer
 
